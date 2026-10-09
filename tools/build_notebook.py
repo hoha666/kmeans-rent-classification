@@ -188,10 +188,27 @@ cells.append(nbf.v4.new_code_cell(
     "ax.legend(); plt.tight_layout(); plt.show()"
 ))
 cells.append(nbf.v4.new_markdown_cell(
+    "#### Elbow plot using inertia\n\n"
+    "The elbow method plots within-cluster sum of squares (inertia), not silhouette. "
+    "It provides a complementary visual check: we look for the point after which adding clusters "
+    "produces only smaller reductions in inertia."
+))
+cells.append(nbf.v4.new_code_cell(
+    "fig, ax = plt.subplots(figsize=(8, 5))\n"
+    "ax.plot(grid_results['k'], grid_results['inertia'], marker='o', linewidth=2, color='darkorange')\n"
+    "ax.axvline(optimal_k, color='crimson', linestyle='--', alpha=.75, label=f'Silhouette choice: k={optimal_k}')\n"
+    "ax.set(xticks=range(1, 11), xlabel='Number of clusters (k)',\n"
+    "       ylabel='Inertia (within-cluster sum of squares)', title='Elbow plot')\n"
+    "ax.legend(); plt.tight_layout(); plt.show()"
+))
+cells.append(nbf.v4.new_markdown_cell(
     "The silhouette coefficient is undefined for `k=1` because there is no other cluster from which "
     "to calculate `b(i)`; it is therefore shown as `NaN` and excluded from selection. The maximum "
     "score determines the optimal `k` among 2 through 10. A larger score means points are, on "
-    "average, more cohesive within their own cluster and better separated from their nearest other cluster."
+    "average, more cohesive within their own cluster and better separated from their nearest other cluster. "
+    "Inertia always falls as `k` increases, so the elbow is interpreted by diminishing improvement rather "
+    "than by choosing the absolute minimum. Here the visual bend is around `k=3`, whereas silhouette "
+    "has a slightly stronger preference for `k=2`; the final model follows the assignment's silhouette criterion."
 ))
 cells.append(nbf.v4.new_markdown_cell("### 2.2 Plot the optimal clustering"))
 cells.append(nbf.v4.new_code_cell(

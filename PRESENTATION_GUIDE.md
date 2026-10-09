@@ -521,6 +521,25 @@ ax.legend(); plt.tight_layout(); plt.show()
 - **Lines 9-10:** Set integer x-axis ticks, labels, and title.
 - **Line 11:** Shows the legend, adjusts margins, and displays the plot; all three commands share one physical line.
 
+### Elbow plot using inertia - second plot in Task 2.1
+
+**What to tell the TA.** The elbow method is based on inertia, not silhouette. Inertia is the within-cluster sum of squared distances. It always decreases as `k` increases, so we do not choose its absolute minimum. Instead, we look for a bend after which additional clusters produce much smaller improvements. In this dataset the visual elbow is around `k=3`, while silhouette has a slightly higher score at `k=2`. The final model remains `k=2` because silhouette is the selection criterion required by the assignment; the elbow plot is a complementary diagnostic.
+
+```python
+fig, ax = plt.subplots(figsize=(8, 5))
+ax.plot(grid_results['k'], grid_results['inertia'], marker='o', linewidth=2, color='darkorange')
+ax.axvline(optimal_k, color='crimson', linestyle='--', alpha=.75, label=f'Silhouette choice: k={optimal_k}')
+ax.set(xticks=range(1, 11), xlabel='Number of clusters (k)',
+       ylabel='Inertia (within-cluster sum of squares)', title='Elbow plot')
+ax.legend(); plt.tight_layout(); plt.show()
+```
+
+- **Line 1:** Creates a new figure and axes for the elbow plot.
+- **Line 2:** Plots inertia against every tested `k`. The circular markers show the evaluated values.
+- **Line 3:** Draws a dashed vertical reference at the `k` selected by silhouette so the two methods can be compared.
+- **Lines 4-5:** Set integer x-axis ticks, axis labels, and the title.
+- **Line 6:** Shows the legend, adjusts margins, and displays the plot.
+
 ---
 
 ## Section 10: Visualize and summarize the optimal clusters

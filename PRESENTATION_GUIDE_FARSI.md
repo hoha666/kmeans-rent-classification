@@ -491,6 +491,33 @@ ax.legend(); plt.tight_layout(); plt.show()
 - **خطوط ۹ تا ۱۰:** tickها، نام محورها و عنوان را تنظیم می‌کنند.
 - **خط ۱۱:** legend، اصلاح layout و نمایش نمودار را در یک خط انجام می‌دهد.
 
+### نمودار Elbow با استفاده از Inertia - نمودار دوم بخش ۲.۱
+
+**توضیح مناسب برای TA:** روش Elbow بر اساس inertia است، نه Silhouette. Inertia مجموع مربع فاصله‌های داخل خوشه است و با افزایش `k` همیشه کاهش می‌یابد؛ بنابراین کمترین مقدار مطلق را انتخاب نمی‌کنیم. در عوض دنبال نقطه‌ای هستیم که پس از آن، اضافه‌کردن خوشه کاهش بسیار کم‌تری در inertia ایجاد کند. در این داده، خم بصری نمودار تقریباً نزدیک `k=3` است، ولی Silhouette در `k=2` کمی بهتر است. مدل نهایی همچنان `k=2` می‌ماند، چون صورت آزمایش Silhouette را معیار انتخاب خواسته است و Elbow فقط یک بررسی مکمل است.
+
+### کد
+
+</div>
+
+```python
+fig, ax = plt.subplots(figsize=(8, 5))
+ax.plot(grid_results['k'], grid_results['inertia'], marker='o', linewidth=2, color='darkorange')
+ax.axvline(optimal_k, color='crimson', linestyle='--', alpha=.75, label=f'Silhouette choice: k={optimal_k}')
+ax.set(xticks=range(1, 11), xlabel='Number of clusters (k)',
+       ylabel='Inertia (within-cluster sum of squares)', title='Elbow plot')
+ax.legend(); plt.tight_layout(); plt.show()
+```
+
+<div dir="rtl" align="right">
+
+### توضیح خط‌به‌خط
+
+- **خط ۱:** figure و axes جدیدی برای نمودار Elbow می‌سازد.
+- **خط ۲:** inertia را برای همهٔ `k`های آزمایش‌شده رسم می‌کند؛ markerهای دایره‌ای مقادیر واقعی را نشان می‌دهند.
+- **خط ۳:** یک خط‌چین عمودی روی `k` منتخب Silhouette می‌کشد تا دو روش قابل مقایسه باشند.
+- **خطوط ۴ تا ۵:** tickهای صحیح محور x، نام محورها و عنوان نمودار را تعیین می‌کنند.
+- **خط ۶:** legend، اصلاح حاشیه‌ها و نمایش نمودار را انجام می‌دهد.
+
 ---
 
 ## بخش ۱۰: نمایش و خلاصه‌سازی خوشه‌های بهینه
