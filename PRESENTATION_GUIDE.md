@@ -5,6 +5,8 @@ This guide follows `kmeans_rent_classification.ipynb` in order. Each section has
 1. **What to tell the TA** - a short explanation of the purpose, method, and interpretation.
 2. **Line-by-line Python explanation** - what every statement in the corresponding notebook cell does.
 
+**How line numbers are counted:** the numbers below match PyCharm's line numbers inside each individual notebook code cell. PyCharm starts again at line 1 for every cell. Blank lines and comment-only lines still count, and two commands written on one physical line share one line number.
+
 The project studies whether Sweden's 21 counties form natural groups based on:
 
 - annual rent per square metre; and
@@ -142,8 +144,7 @@ plt.show()
 - **Line 8:** Supplies the point coordinates and moves the label four screen points right and up so it does not sit directly on the marker.
 - **Line 9:** Says that the offset is measured in display points and uses a small font.
 - **Lines 10-11:** Set both axis labels and the plot title.
-- **Line 12:** Adjusts margins automatically to prevent labels from being clipped.
-- **Line 13:** Displays the finished figure.
+- **Line 12:** `plt.tight_layout()` adjusts margins to prevent clipping, and `plt.show()` displays the figure. The semicolon places both commands on the same physical line.
 
 ---
 
@@ -196,9 +197,9 @@ class KMeansScratch:
         return np.linalg.norm(X[:, None, :] - centroids[None, :, :], axis=2)
 ```
 
-- **Line 10:** `@staticmethod` indicates that this helper does not need a particular fitted object.
-- **Line 11:** Defines an internal distance method. The leading underscore signals that it is intended as a helper.
-- **Line 12:** Broadcasting subtracts every centroid from every observation. `np.linalg.norm(..., axis=2)` calculates Euclidean distance across the feature dimension. The result has one row per observation and one column per centroid.
+- **Line 11:** `@staticmethod` indicates that this helper does not need a particular fitted object. Line 10 is blank.
+- **Line 12:** Defines an internal distance method. The leading underscore signals that it is intended as a helper.
+- **Line 13:** Broadcasting subtracts every centroid from every observation. `np.linalg.norm(..., axis=2)` calculates Euclidean distance across the feature dimension. The result has one row per observation and one column per centroid.
 
 For two points \((x_1,y_1)\) and \((x_2,y_2)\), Euclidean distance is:
 
@@ -211,24 +212,24 @@ d = \sqrt{(x_1-x_2)^2 + (y_1-y_2)^2}
         X = np.asarray(X, dtype=float)
 ```
 
-- **Line 13:** Defines the method that learns clusters from data.
-- **Line 14:** Converts the input to a floating-point NumPy array, even if the caller provided a list or DataFrame.
+- **Line 15:** Defines the method that learns clusters from data. Line 14 is blank.
+- **Line 16:** Converts the input to a floating-point NumPy array, even if the caller provided a list or DataFrame.
 
 ```python
         if X.ndim != 2 or self.n_clusters > len(X):
             raise ValueError('X must be 2D and n_clusters cannot exceed sample count')
 ```
 
-- **Line 15:** Checks that `X` is a matrix and that there are enough observations for the requested number of clusters.
-- **Line 16:** Raises an informative error when either condition is invalid.
+- **Line 17:** Checks that `X` is a matrix and that there are enough observations for the requested number of clusters.
+- **Line 18:** Raises an informative error when either condition is invalid.
 
 ```python
         rng = np.random.default_rng(self.random_state)
         self.centroids_ = X[rng.choice(len(X), self.n_clusters, replace=False)].copy()
 ```
 
-- **Line 17:** Creates a modern NumPy random-number generator using the stored seed.
-- **Line 18:** Randomly chooses `n_clusters` different row positions. Those observations become the initial centroids. `.copy()` creates independent centroid data.
+- **Line 19:** Creates a modern NumPy random-number generator using the stored seed.
+- **Line 20:** Randomly chooses `n_clusters` different row positions. Those observations become the initial centroids. `.copy()` creates independent centroid data.
 
 ```python
         for iteration in range(self.max_iter):
@@ -236,9 +237,9 @@ d = \sqrt{(x_1-x_2)^2 + (y_1-y_2)^2}
             labels = distances.argmin(axis=1)
 ```
 
-- **Line 19:** Begins the update loop, with at most `max_iter` repetitions.
-- **Line 20:** Calculates every observation-to-centroid distance.
-- **Line 21:** `argmin(axis=1)` returns the column position of the smallest distance in each row. That position is the observation's cluster label.
+- **Line 21:** Begins the update loop, with at most `max_iter` repetitions.
+- **Line 22:** Calculates every observation-to-centroid distance.
+- **Line 23:** `argmin(axis=1)` returns the column position of the smallest distance in each row. That position is the observation's cluster label.
 
 ```python
             new_centroids = np.empty_like(self.centroids_)
@@ -246,25 +247,27 @@ d = \sqrt{(x_1-x_2)^2 + (y_1-y_2)^2}
                 members = X[labels == cluster]
 ```
 
-- **Line 22:** Allocates an array with the same shape and type as the current centroids.
-- **Line 23:** Loops through each cluster number.
-- **Line 24:** Boolean indexing selects only observations whose assigned label equals the current cluster.
+- **Line 24:** Allocates an array with the same shape and type as the current centroids.
+- **Line 25:** Loops through each cluster number.
+- **Line 26:** Boolean indexing selects only observations whose assigned label equals the current cluster.
 
 ```python
                 if len(members):
                     new_centroids[cluster] = members.mean(axis=0)
 ```
 
-- **Line 25:** Tests whether the cluster contains at least one observation. A nonzero length is treated as `True`.
-- **Line 26:** Calculates the feature-wise mean of the members and stores it as the new centroid.
+- **Line 27:** Tests whether the cluster contains at least one observation. A nonzero length is treated as `True`.
+- **Line 28:** Calculates the feature-wise mean of the members and stores it as the new centroid.
 
 ```python
                 else:
+                    # Re-seed an empty cluster with the currently worst represented point.
                     new_centroids[cluster] = X[distances.min(axis=1).argmax()]
 ```
 
-- **Line 27:** Handles the rare case in which no point is assigned to a centroid.
-- **Line 28:** Finds the point farthest from its nearest existing centroid and uses it to restart the empty cluster.
+- **Line 29:** Handles the rare case in which no point is assigned to a centroid.
+- **Line 30:** This comment explains the empty-cluster recovery rule; it is counted by PyCharm even though it is not executed.
+- **Line 31:** Finds the point farthest from its nearest existing centroid and uses it to restart the empty cluster.
 
 ```python
             shift = np.linalg.norm(new_centroids - self.centroids_, axis=1).max()
@@ -273,10 +276,10 @@ d = \sqrt{(x_1-x_2)^2 + (y_1-y_2)^2}
                 break
 ```
 
-- **Line 29:** Calculates how far every centroid moved, then takes the largest movement.
-- **Line 30:** Replaces the old centroids with the newly calculated centroids.
-- **Line 31:** Compares the largest movement with the convergence tolerance.
-- **Line 32:** Ends the loop early when the centroids have effectively stopped changing.
+- **Line 32:** Calculates how far every centroid moved, then takes the largest movement.
+- **Line 33:** Replaces the old centroids with the newly calculated centroids.
+- **Line 34:** Compares the largest movement with the convergence tolerance.
+- **Line 35:** Ends the loop early when the centroids have effectively stopped changing.
 
 ```python
         self.n_iter_ = iteration + 1
@@ -285,10 +288,10 @@ d = \sqrt{(x_1-x_2)^2 + (y_1-y_2)^2}
         return self
 ```
 
-- **Line 33:** Saves how many iterations ran. `+1` converts the zero-based loop counter into a human-readable count.
-- **Line 34:** Uses the final centroids to calculate and save the final labels.
-- **Line 35:** Calculates inertia: the sum of squared differences between each observation and its assigned centroid. Lower inertia means more compact clusters, but inertia always tends to decrease as `k` increases.
-- **Line 36:** Returns the fitted object, enabling syntax such as `model = KMeansScratch(...).fit(X)`.
+- **Line 36:** Saves how many iterations ran. `+1` converts the zero-based loop counter into a human-readable count.
+- **Line 37:** Uses the final centroids to calculate and save the final labels.
+- **Line 38:** Calculates inertia: the sum of squared differences between each observation and its assigned centroid. Lower inertia means more compact clusters, but inertia always tends to decrease as `k` increases.
+- **Line 39:** Returns the fitted object, enabling syntax such as `model = KMeansScratch(...).fit(X)`.
 
 ```python
     def predict(self, X):
@@ -296,25 +299,25 @@ d = \sqrt{(x_1-x_2)^2 + (y_1-y_2)^2}
             raise RuntimeError('Call fit before predict')
 ```
 
-- **Line 37:** Defines the method that assigns data to learned clusters.
-- **Line 38:** Checks whether fitting has created the `centroids_` attribute.
-- **Line 39:** Produces a clear error if someone tries to predict before fitting.
+- **Line 41:** Defines the method that assigns data to learned clusters. Line 40 is blank.
+- **Line 42:** Checks whether fitting has created the `centroids_` attribute.
+- **Line 43:** Produces a clear error if someone tries to predict before fitting.
 
 ```python
         X = np.asarray(X, dtype=float)
         return self._distances(X, self.centroids_).argmin(axis=1)
 ```
 
-- **Line 40:** Converts new input data into a floating-point NumPy array.
-- **Line 41:** Calculates distances to all fitted centroids and returns the nearest centroid index for every input row.
+- **Line 44:** Converts new input data into a floating-point NumPy array.
+- **Line 45:** Calculates distances to all fitted centroids and returns the nearest centroid index for every input row.
 
 ```python
     def fit_predict(self, X):
         return self.fit(X).labels_
 ```
 
-- **Line 42:** Defines a convenience method that fits and returns labels in one call.
-- **Line 43:** `self.fit(X)` returns the fitted object, and `.labels_` retrieves its saved labels.
+- **Line 47:** Defines a convenience method that fits and returns labels in one call. Line 46 is blank.
+- **Line 48:** `self.fit(X)` returns the fitted object, and `.labels_` retrieves its saved labels.
 
 ---
 
@@ -327,35 +330,30 @@ Before tuning `k`, I demonstrate the class using three clusters. The model conve
 ### Code
 
 ```python
-initial_model = KMeansScratch(n_clusters=3, max_iter=100,
-                              random_state=RANDOM_STATE).fit(X)
-print(f'Converged in {initial_model.n_iter_} iterations; '
-      f'inertia = {initial_model.inertia_:.2f}')
+initial_model = KMeansScratch(n_clusters=3, max_iter=100, random_state=RANDOM_STATE).fit(X)
+print(f'Converged in {initial_model.n_iter_} iterations; inertia = {initial_model.inertia_:.2f}')
 
 fig, ax = plt.subplots(figsize=(9, 6))
-ax.scatter(X[:, 0], X[:, 1], c=initial_model.labels_, cmap='tab10',
-           s=80, edgecolor='white')
+points = ax.scatter(X[:, 0], X[:, 1], c=initial_model.labels_, cmap='tab10',
+                    s=80, edgecolor='white')
 ax.scatter(initial_model.centroids_[:, 0], initial_model.centroids_[:, 1],
-           marker='X', s=240, c=np.arange(3), cmap='tab10',
-           edgecolor='black', linewidth=1.2, label='Centroids')
+           marker='X', s=240, c=np.arange(3), cmap='tab10', edgecolor='black',
+           linewidth=1.2, label='Centroids')
 ax.set(xlabel='Annual rent per m²', ylabel='Average yearly income (KSEK)',
        title='Initial K-means solution (k=3)')
-ax.legend()
-plt.tight_layout()
-plt.show()
+ax.legend(); plt.tight_layout(); plt.show()
 ```
 
 ### Line-by-line explanation
 
-- **Lines 1-2:** Construct a three-cluster model and immediately fit it to `X`. The fixed seed makes initialization repeatable.
-- **Lines 3-4:** Print the number of completed iterations and inertia. `:.2f` formats inertia to two decimal places.
-- **Line 6:** Create a figure and axes.
-- **Lines 7-8:** Plot observations. `c=labels` assigns colours from the `tab10` colour map according to cluster labels.
-- **Lines 9-11:** Plot the centroids as large X symbols. `np.arange(3)` generates `[0, 1, 2]` so centroid colours match the cluster colour map.
-- **Lines 12-13:** Set labels and title.
-- **Line 14:** Display the legend.
-- **Line 15:** Correct the layout.
-- **Line 16:** Display the plot.
+- **Line 1:** Constructs a three-cluster model and immediately fits it to `X`. The fixed seed makes initialization repeatable.
+- **Line 2:** Prints the completed iteration count and inertia. `:.2f` formats inertia to two decimal places.
+- **Line 3:** Blank line separating calculation from plotting.
+- **Line 4:** Creates a figure and axes.
+- **Lines 5-6:** Plots observations and stores the returned plot object in `points`. `c=labels` assigns colours from `tab10` according to cluster labels.
+- **Lines 7-9:** Plots centroids as large X symbols. `np.arange(3)` generates `[0, 1, 2]` so colours match the cluster colour map.
+- **Lines 10-11:** Sets axis labels and title.
+- **Line 12:** Shows the legend, corrects the layout, and displays the plot. Semicolons keep the three commands on one physical line.
 
 ---
 
@@ -375,6 +373,7 @@ Values close to 1 indicate a well-separated point, values near 0 indicate a boun
 
 ```python
 def average_intra_cluster_distance(X, labels, i):
+    """a(i): mean distance from point i to other points in its cluster."""
     same = np.flatnonzero(labels == labels[i])
     same = same[same != i]
     if len(same) == 0:
@@ -382,27 +381,29 @@ def average_intra_cluster_distance(X, labels, i):
     return float(np.linalg.norm(X[same] - X[i], axis=1).mean())
 ```
 
-- **Line 1:** Defines a function receiving all points, all labels, and the position `i` of one point.
-- **Line 2:** `labels == labels[i]` marks points in the same cluster. `np.flatnonzero` returns their integer positions.
-- **Line 3:** Removes `i` itself so its zero distance to itself does not reduce the average.
-- **Line 4:** Checks whether the point is alone in its cluster.
-- **Line 5:** Returns zero for a singleton, following the usual silhouette convention.
-- **Line 6:** Subtracts point `i` from its cluster neighbours, calculates Euclidean distances, averages them, and converts the result to a regular Python float.
+- **Line 1:** Defines a function receiving all points, labels, and the position `i` of one point.
+- **Line 2:** The docstring documents that this function calculates `a(i)`.
+- **Line 3:** `labels == labels[i]` marks points in the same cluster; `np.flatnonzero` returns their positions.
+- **Line 4:** Removes `i` itself so its zero self-distance does not reduce the average.
+- **Line 5:** Checks whether the point is alone in its cluster.
+- **Line 6:** Returns zero for a singleton, following the usual silhouette convention.
+- **Line 7:** Calculates and returns the mean Euclidean distance from point `i` to its cluster neighbours.
 
 ### Function 2: Nearest-cluster distance `b(i)`
 
 ```python
 def average_nearest_cluster_distance(X, labels, i):
+    """b(i): smallest mean distance from point i to another cluster."""
     other_clusters = np.unique(labels[labels != labels[i]])
-    means = [np.linalg.norm(X[labels == c] - X[i], axis=1).mean()
-             for c in other_clusters]
+    means = [np.linalg.norm(X[labels == c] - X[i], axis=1).mean() for c in other_clusters]
     return float(min(means))
 ```
 
-- **Line 1:** Defines the function for the nearest different cluster.
-- **Line 2:** Selects labels different from point `i`'s label, then keeps each distinct cluster ID once.
-- **Lines 3-4:** This list comprehension calculates the mean distance from point `i` to every member of each other cluster.
-- **Line 5:** Selects the smallest mean, which represents the closest alternative cluster.
+- **Line 9:** Defines the function for the nearest different cluster. Line 8 is blank.
+- **Line 10:** The docstring documents that this function calculates `b(i)`.
+- **Line 11:** Selects labels different from point `i`'s label, then keeps each distinct cluster ID once.
+- **Line 12:** The list comprehension calculates the mean distance from point `i` to every other cluster.
+- **Line 13:** Selects the smallest mean, representing the closest alternative cluster.
 
 ### Function 3: Silhouette score for every point
 
@@ -422,19 +423,19 @@ def silhouette_samples_scratch(X, labels):
     return scores
 ```
 
-- **Line 1:** Defines the per-observation silhouette function.
-- **Line 2:** Converts both inputs to NumPy arrays. `X` is explicitly converted to floats.
-- **Line 3:** Counts distinct labels and checks that at least two clusters exist.
-- **Line 4:** Raises an error for one cluster because no alternative cluster exists for `b(i)`.
-- **Line 5:** Creates an array of zeros with one score position per observation.
-- **Line 6:** Loops through every observation position.
-- **Line 7:** Counts how many points have the current point's label and checks whether it is a singleton.
-- **Line 8:** Assigns the conventional silhouette value zero to a singleton.
-- **Line 9:** Skips the rest of the current loop iteration and moves to the next point.
-- **Line 10:** Calls the earlier function to calculate `a(i)`.
-- **Line 11:** Calls the earlier function to calculate `b(i)`.
-- **Line 12:** Applies the silhouette formula and stores the result.
-- **Line 13:** Returns all individual scores.
+- **Line 15:** Defines the per-observation silhouette function. Line 14 is blank.
+- **Line 16:** Converts both inputs to NumPy arrays; `X` is explicitly converted to floats.
+- **Line 17:** Counts distinct labels and checks that at least two clusters exist.
+- **Line 18:** Raises an error for one cluster because no alternative cluster exists for `b(i)`.
+- **Line 19:** Creates one zero-initialized score position per observation.
+- **Line 20:** Loops through every observation position.
+- **Line 21:** Checks whether the current point is the only member of its cluster.
+- **Line 22:** Assigns the conventional silhouette value zero to a singleton. The inline comment documents why.
+- **Line 23:** Skips to the next point.
+- **Line 24:** Calculates `a(i)`.
+- **Line 25:** Calculates `b(i)`.
+- **Line 26:** Applies the silhouette formula and stores the result.
+- **Line 27:** Returns all individual scores.
 
 ### Function 4: Mean silhouette score
 
@@ -443,8 +444,8 @@ def silhouette_score_scratch(X, labels):
     return float(silhouette_samples_scratch(X, labels).mean())
 ```
 
-- **Line 1:** Defines the overall score function.
-- **Line 2:** Calculates every point's silhouette, averages the results, and returns a normal float.
+- **Line 29:** Defines the overall score function. Line 28 is blank.
+- **Line 30:** Calculates every point's silhouette, averages the results, and returns a normal float.
 
 ---
 
@@ -460,12 +461,10 @@ The number of clusters is a hyperparameter because K-means cannot learn it autom
 def grid_search_clusters(X, k_values=range(1, 11), random_state=42):
     results, models = [], {}
     for k in k_values:
-        model = KMeansScratch(k, max_iter=100,
-                              random_state=random_state).fit(X)
+        model = KMeansScratch(k, max_iter=100, random_state=random_state).fit(X)
         models[k] = model
         score = np.nan if k == 1 else silhouette_score_scratch(X, model.labels_)
-        results.append({'k': k, 'silhouette': score,
-                        'inertia': model.inertia_})
+        results.append({'k': k, 'silhouette': score, 'inertia': model.inertia_})
     return pd.DataFrame(results), models
 
 grid_results, grid_models = grid_search_clusters(X)
@@ -474,16 +473,17 @@ display(grid_results.round(4))
 
 ### Line-by-line explanation
 
-- **Line 1:** Defines the grid-search function. `range(1, 11)` generates integers 1 through 10 because the upper limit is excluded.
-- **Line 2:** Creates an empty list for result rows and an empty dictionary for fitted models.
-- **Line 3:** Loops over each candidate number of clusters.
-- **Lines 4-5:** Creates and fits a new K-means model for the current `k`.
-- **Line 6:** Stores the fitted model in the dictionary using `k` as its key.
-- **Line 7:** Uses a conditional expression: store `NaN` for one cluster; otherwise calculate the silhouette score.
-- **Lines 8-9:** Append a dictionary containing the current hyperparameter and metrics to the result list.
-- **Line 10:** Convert result dictionaries into a DataFrame and return it together with all fitted models.
-- **Line 12:** Run the grid search and unpack its two returned objects.
-- **Line 13:** Round displayed numbers to four decimal places and render the table.
+- **Line 32:** Defines the grid-search function. `range(1, 11)` generates integers 1 through 10. Line 31 is blank.
+- **Line 33:** Creates an empty list for result rows and an empty dictionary for fitted models.
+- **Line 34:** Loops over each candidate number of clusters.
+- **Line 35:** Creates and fits a new K-means model for the current `k`.
+- **Line 36:** Stores the fitted model in the dictionary using `k` as its key.
+- **Line 37:** Stores `NaN` for one cluster; otherwise calculates the silhouette score.
+- **Line 38:** Appends the current hyperparameter and metrics to the result list.
+- **Line 39:** Converts the results into a DataFrame and returns it together with all fitted models.
+- **Line 40:** Blank line separating the function definition from its use.
+- **Line 41:** Runs the grid search and unpacks its two returned objects.
+- **Line 42:** Rounds displayed numbers to four decimal places and renders the table.
 
 ---
 
@@ -503,14 +503,10 @@ print(f'Best k = {optimal_k}, silhouette coefficient = {optimal_score:.4f}')
 
 fig, ax = plt.subplots(figsize=(8, 5))
 ax.plot(valid['k'], valid['silhouette'], marker='o', linewidth=2)
-ax.scatter([optimal_k], [optimal_score], s=130, color='crimson',
-           zorder=3, label='Best k')
+ax.scatter([optimal_k], [optimal_score], s=130, color='crimson', zorder=3, label='Best k')
 ax.set(xticks=range(1, 11), xlabel='Number of clusters (k)',
-       ylabel='Mean silhouette coefficient',
-       title='Grid search over k=1...10')
-ax.legend()
-plt.tight_layout()
-plt.show()
+       ylabel='Mean silhouette coefficient', title='Grid search over k=1...10')
+ax.legend(); plt.tight_layout(); plt.show()
 ```
 
 ### Line-by-line explanation
@@ -521,11 +517,9 @@ plt.show()
 - **Line 4:** Prints both values; `:.4f` displays four decimal places.
 - **Line 6:** Creates a figure and axes.
 - **Line 7:** Draws silhouette against `k`, placing a circular marker at each tested value.
-- **Lines 8-9:** Adds a larger red marker at the optimum. `zorder=3` draws it above the line.
-- **Lines 10-12:** Set integer x-axis ticks, labels, and title.
-- **Line 13:** Display the legend.
-- **Line 14:** Adjust margins.
-- **Line 15:** Show the plot.
+- **Line 8:** Adds a larger red marker at the optimum. `zorder=3` draws it above the line.
+- **Lines 9-10:** Set integer x-axis ticks, labels, and title.
+- **Line 11:** Shows the legend, adjusts margins, and displays the plot; all three commands share one physical line.
 
 ---
 
@@ -567,15 +561,11 @@ for _, row in df.iterrows():
 ```python
 ax.set(xlabel='Annual rent per m²', ylabel='Average yearly income (KSEK)',
        title=f'Optimal K-means clustering (k={optimal_k})')
-ax.legend()
-plt.tight_layout()
-plt.show()
+ax.legend(); plt.tight_layout(); plt.show()
 ```
 
 - **Lines 12-13:** Set axes and insert `optimal_k` into the title with an f-string.
-- **Line 14:** Show the centroid legend.
-- **Line 15:** Fix layout spacing.
-- **Line 16:** Display the figure.
+- **Line 14:** Shows the centroid legend, fixes layout spacing, and displays the figure on one physical line.
 
 ### Summary-table code explained line by line
 
@@ -585,18 +575,18 @@ cluster_summary = (df.assign(cluster=optimal_model.labels_)
                    .agg(count=('region', 'size'),
                         mean_rent=('Annual rent sqm', 'mean'),
                         mean_income=('Avg yearly inc KSEK', 'mean'),
-                        regions=('region', lambda s: ', '.join(
-                            s.str.replace(r'^\d+ ', '', regex=True)))))
+                        regions=('region', lambda s: ', '.join(s.str.replace(r'^\d+ ', '', regex=True)))))
 display(cluster_summary)
 ```
 
-- **Line 1:** `.assign(...)` creates a temporary DataFrame with the fitted label added as a `cluster` column. Parentheses allow one expression to continue across lines.
-- **Line 2:** Groups rows that have the same cluster label.
-- **Line 3:** Begins named aggregations. `count` is the number of regions in each group.
-- **Line 4:** Calculates mean annual rent for each group.
-- **Line 5:** Calculates mean income for each group.
-- **Lines 6-7:** Builds one comma-separated string of region names per cluster. The regular expression `^\d+ ` removes digits and a following space only at the start of each name.
-- **Line 8:** Displays the resulting summary table.
+- **Line 15:** Blank line separating the plot from the summary calculation.
+- **Line 16:** `.assign(...)` creates a temporary DataFrame with the fitted label added as a `cluster` column.
+- **Line 17:** Groups rows that have the same cluster label.
+- **Line 18:** Begins named aggregations; `count` is the number of regions in each group.
+- **Line 19:** Calculates mean annual rent for each group.
+- **Line 20:** Calculates mean income for each group.
+- **Line 21:** Builds a comma-separated string of region names per cluster. The regular expression `^\d+ ` removes the numeric code at the start.
+- **Line 22:** Displays the resulting summary table.
 
 ---
 
@@ -609,9 +599,7 @@ I represent the three supplied regions in exactly the same feature order as the 
 ### Prediction-table code
 
 ```python
-new_regions = np.array([[1010, 320.12],
-                        [1258, 320.00],
-                        [980, 292.40]])
+new_regions = np.array([[1010, 320.12], [1258, 320.00], [980, 292.40]])
 new_labels = optimal_model.predict(new_regions)
 predictions = pd.DataFrame(new_regions, columns=FEATURES)
 predictions.insert(0, 'new_region', ['Region A', 'Region B', 'Region C'])
@@ -621,12 +609,13 @@ display(predictions)
 
 ### Line-by-line explanation
 
-- **Lines 1-3:** Create a 3-by-2 NumPy array. Every inner list is one region with `[annual rent, average income]`.
-- **Line 4:** Assign each new region to its nearest centroid using the fitted model.
-- **Line 5:** Convert the values into a readable DataFrame with the same feature names.
-- **Line 6:** Insert the human-readable region names at column position zero.
-- **Line 7:** Add the predicted cluster labels as a new column.
-- **Line 8:** Display the prediction table.
+- **Line 1:** Creates a 3-by-2 NumPy array. Every inner list is one region with `[annual rent, average income]`.
+- **Line 2:** Assigns each new region to its nearest centroid using the fitted model.
+- **Line 3:** Converts the values into a readable DataFrame with the same feature names.
+- **Line 4:** Inserts the human-readable region names at column position zero.
+- **Line 5:** Adds the predicted cluster labels as a new column.
+- **Line 6:** Displays the prediction table.
+- **Line 7:** Blank line separating the table code from the plotting code.
 
 ### Prediction-plot code
 
@@ -642,28 +631,23 @@ ax.scatter(new_regions[:, 0], new_regions[:, 1], c=new_labels, cmap='tab10',
            edgecolor='black', linewidth=1.2, label='New regions')
 ```
 
-- **Line 1:** Create the figure.
-- **Lines 2-3:** Plot original counties with partial transparency (`alpha=.65`) so the new points stand out.
-- **Lines 4-6:** Plot the learned centroids as X markers.
-- **Lines 7-9:** Plot the new regions as large stars. `vmin` and `vmax` keep colour mapping aligned with cluster IDs.
+- **Line 8:** Creates the figure.
+- **Lines 9-10:** Plot original counties with partial transparency (`alpha=.65`) so the new points stand out.
+- **Lines 11-13:** Plot the learned centroids as X markers.
+- **Lines 14-16:** Plot the new regions as large stars. `vmin` and `vmax` keep colour mapping aligned with cluster IDs.
 
 ```python
 for name, (x, y) in zip(predictions['new_region'], new_regions):
-    ax.annotate(name, (x, y), xytext=(7, 7),
-                textcoords='offset points', weight='bold')
+    ax.annotate(name, (x, y), xytext=(7, 7), textcoords='offset points', weight='bold')
 ax.set(xlabel='Annual rent per m²', ylabel='Average yearly income (KSEK)',
        title='Optimal clusters and predictions for new regions')
-ax.legend()
-plt.tight_layout()
-plt.show()
+ax.legend(); plt.tight_layout(); plt.show()
 ```
 
-- **Line 10:** `zip(...)` pairs each region name with its coordinate pair. `(x, y)` unpacks each pair into two variables.
-- **Lines 11-12:** Add a bold, offset label beside each new star.
-- **Lines 13-14:** Set plot labels and title.
-- **Line 15:** Show the legend.
-- **Line 16:** Fix margins.
-- **Line 17:** Display the plot.
+- **Line 17:** `zip(...)` pairs each region name with its coordinate pair. `(x, y)` unpacks each pair into two variables.
+- **Line 18:** Adds a bold, offset label beside each new star.
+- **Lines 19-20:** Set plot labels and title.
+- **Line 21:** Shows the legend, fixes margins, and displays the plot on one physical line.
 
 ### How to evaluate these predictions
 
