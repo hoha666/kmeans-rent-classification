@@ -55,19 +55,19 @@ if not DATA_PATH.exists():
 
 ### What to tell the TA
 
-I load the supplied CSV into a Pandas DataFrame. The first CSV column is only a saved row index, so I use `index_col=0` instead of treating it as a feature. I then display the first five rows to check the structure and values. The PDF calls the file `rent_vs_inc.csv`, but the supplied file is actually named `inc_vs_rent.csv`.
+I load the supplied CSV into a Pandas DataFrame. The first CSV column is only a saved row index, so I use `index_col=0` instead of treating it as a feature. I then display the first ten rows to check the structure and values. The PDF calls the file `rent_vs_inc.csv`, but the supplied file is actually named `inc_vs_rent.csv`.
 
 ### Code
 
 ```python
 df = pd.read_csv(DATA_PATH, index_col=0)
-df.head()
+df.head(10)
 ```
 
 ### Line-by-line explanation
 
 - **Line 1:** `pd.read_csv` reads the comma-separated file. `DATA_PATH` says where it is, and `index_col=0` uses the first column as row labels rather than data.
-- **Line 2:** `df.head()` returns the first five rows. Because it is the last expression in a Jupyter cell, Jupyter renders it as a formatted table.
+- **Line 2:** `df.head(10)` returns the first ten rows. Because it is the last expression in a Jupyter cell, Jupyter renders it as a formatted table.
 
 ### What we learn from the first table
 

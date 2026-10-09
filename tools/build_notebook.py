@@ -38,7 +38,7 @@ cells.append(nbf.v4.new_code_cell(
 cells.append(nbf.v4.new_markdown_cell("## Task 1 - Classification with K-means\n\n### 1.1 Load and inspect the data"))
 cells.append(nbf.v4.new_code_cell(
     "df = pd.read_csv(DATA_PATH, index_col=0)\n"
-    "df.head()"
+    "df.head(10)"
 ))
 cells.append(nbf.v4.new_code_cell(
     "print(f'Rows: {len(df)}, columns: {df.shape[1]}')\n"
